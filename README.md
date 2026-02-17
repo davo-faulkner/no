@@ -29,6 +29,6 @@ Layer 3: Authority: RFC 3161 Timestamp via FreeTSA (Temporal Witness).
 
 Layer 4: Availability: OpenTimestamps (Bitcoin Blockchain Anchor).
 
-Layer 5: Provenance: Git staging with signed commitments.
+Layer 5: Provenance: Git staging with signed commits.
 
 Layer 6: Permanence: Public archival via the Wayback Machine.
