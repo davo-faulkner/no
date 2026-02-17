@@ -1,4 +1,4 @@
-# Notary Repository
+## no (Generate Notary Records)
 
 This repository serves as a cryptographic ledger for content authentication, implementing a 6-layer "Authentication Stack" to defend against forgery and ensure permanent, verifiable proof of existence for digital artifacts.
 
@@ -14,10 +14,10 @@ The `no` script is the primary automation engine for this repository. It codifie
 
 ### Usage
 Since the script is in the system `$PATH`, it can be invoked from any directory:
-bash
-no <target_file_or_folder>
+    ```bash
+    no <target_file_or_folder>
 
-## Hardware Configuration
+Hardware Configuration
 Note: The -T6 flag in the tar command is optimized for a 6-core processor (Intel i9). If your system has a different number of CPU cores, you must update this value in the script to match your hardware to avoid process bottlenecks or execution errors.
 
 Stack Execution Order
