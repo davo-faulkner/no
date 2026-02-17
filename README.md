@@ -15,7 +15,7 @@ The `no` script is the primary automation engine for this repository. It codifie
 ### Usage
 Since the script is in the system `$PATH`, it can be invoked from any directory:
 
-    `no <filename or directory>`
+    no <filename or directory>
 
 ### Hardware Configuration
 Note: The -T6 flag in the tar command is optimized for a 6-core processor (Intel i9). If your system has a different number of CPU cores, you must update this value in the script to match your hardware to avoid process bottlenecks or execution errors.
