@@ -77,7 +77,7 @@ echo "--- [3.5/6] LAYER: VERIFICATION & DECRYPTION TEST ---"
 # Ensures the .sig was created by your private key and hasn't been tampered with.
 
 echo ""
-echo "GPG Decryption Verification:"
+echo "GPG Signature Verification:"
 echo ""
 gpg --decrypt "$SIG_FILE"
 echo ""
