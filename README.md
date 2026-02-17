@@ -1,10 +1,10 @@
-## no (Generate Notary Records)
+# no (Notarize) Script
 
-This repository serves as a cryptographic ledger for content authentication, implementing a 6-layer "Authentication Stack" to defend against forgery and ensure permanent, verifiable proof of existence for digital artifacts.
+This repository contains the `no` automation script, the primary submission engine used to generate cryptographic artifacts for the [notary](https://github.com/davo-faulkner/notary) ledger.
 
-## Tooling: The `no` (Notarize) Script
+## Tooling: The `no` (Notarize) Command
 
-The `no` script is the primary automation engine for this repository. It codifies the authentication stack to ensure every notarization is performed with mathematical rigor and consistency.
+The `no` script codifies the logic of the 6-layer "Authentication Stack" to ensure every notarization is performed with mathematical rigor and consistency.
 
 ### Features
 * **Network Pre-check**: Verifies connectivity for temporal witnesses (TSR/OTS) before starting resource-intensive processing.
