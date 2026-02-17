@@ -14,13 +14,14 @@ The `no` script is the primary automation engine for this repository. It codifie
 
 ### Usage
 Since the script is in the system `$PATH`, it can be invoked from any directory:
+
     ```bash
     no <target_file_or_folder>```
 
-Hardware Configuration
+### Hardware Configuration
 Note: The -T6 flag in the tar command is optimized for a 6-core processor (Intel i9). If your system has a different number of CPU cores, you must update this value in the script to match your hardware to avoid process bottlenecks or execution errors.
 
-Stack Execution Order
+### Stack Execution Order
 Layer 1: Integrity: Archive and Symmetric Encryption.
 
 Layer 2: Identity: SHA-512 Hashing and PGP Detached Signing (Identity Witness).
