@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+
+# Author: David (Davo) Faulkner
+# Date Created: 02/16/2026
+#
+# Description:
+# This script automates the 6-layer "Authentication Stack" for the notary
+# repository. It performs high-compression archiving, symmetric encryption,
+# integrity hashing, PGP signing, and prepares files for external witnessing.
+#
+# Usage:
+# no <file_or_folder>
+
+# Set strict mode for script: exit on error, undefined variables, and pipe failure.
+set -euo pipefail
+
+TARGET="${1:-}"
+
+# 1. Validation Logic
+if [[ -z "$TARGET" ]]; then
+    echo "Usage: no <file_or_folder>"
+    exit 1
+fi
+
+# 2. Network Connectivity Check
+echo ""
+echo "--- [0/6] PRE-CHECK: NETWORK CONNECTIVITY ---"
+if ! ping -c 1 -W 2 8.8.8.8 > /dev/null 2>&1; then
+    echo "Error: No network connection detected. Authentication Stack requires connectivity."
+    exit 1
+fi
+echo "Network check passed."
+
+# Set output filenames based on target
+BASE_NAME="${TARGET%/}"
+OUTPUT_FILE="${BASE_NAME}.tar.zst.gpg"
+HASH_FILE="${OUTPUT_FILE}.sha512"
+SIG_FILE="${HASH_FILE}.sig"
+TSR_FILE="${SIG_FILE}.tsr"
+OTS_FILE="${SIG_FILE}.ots"
+
+echo ""
+echo "--- [0.5/6] LAYER: ARCHIVING & SYMMETRIC ENCRYPTION ---"
+# Utilizing optimized Zstd parameters (-15 -T6) for the 6-core i9.
+tar -I "zstd -15 -T6" --atime-preserve -cpf - "$TARGET" | gpg --symmetric > "$OUTPUT_FILE"
+echo "Generated: $OUTPUT_FILE"
+
+echo ""
+echo "--- [1/6] LAYER: INTEGRITY (SHA-512) ---"
+# Extract only the hash string, removing filename and whitespace.
+sha512sum "$OUTPUT_FILE" | awk '{print $1}' > "$HASH_FILE"
+echo "Generated: $HASH_FILE"
+
+echo ""
+echo "--- [2/6] LAYER: IDENTITY (OpenPGP) ---"
+# Generate a cleartext signature of the raw hash.
+gpg --clearsign --output "$SIG_FILE" "$HASH_FILE"
+echo "Generated: $SIG_FILE"
+
+echo ""
+echo "--- [3/6] LAYER: TIME (Fast - RFC 3161 TSR) ---"
+# Request timestamp from FreeTSA using SHA-512.
+openssl ts -query -data "$SIG_FILE" -sha512 -cert | \
+curl -s -H "Content-Type: application/timestamp-query" --data-binary @- https://freetsa.org/tsr > "$TSR_FILE"
+
+if [[ -s "$TSR_FILE" ]]; then
+    echo "Generated: $TSR_FILE"
+else
+    echo "Error: Failed to retrieve TSR from FreeTSA."
+    exit 1
+fi
+
+echo ""
+echo "--- [3.5/6] LAYER: VERIFICATION & DECRYPTION TEST ---"
+
+# 1. Verify GPG Signature (Identity)
+# Ensures the .sig was created by your private key and hasn't been tampered with.
+
+echo ""
+echo "GPG Decryption Verification:"
+echo ""
+gpg --decrypt "$SIG_FILE"
+echo ""
+
+# 2. Verify RFC 3161 Timestamp (Authority)
+# This checks the mathematical link between the .sig file and the FreeTSA response.
+# Note: This requires the FreeTSA root CA locally or the -CAfile flag.
+echo "Free TSA Time Stamp Verification:"
+echo ""
+openssl ts -reply -in "$TSR_FILE" -text | grep "Time stamp:"
+echo ""
+
+# 3. Verify Hash Match in TSR
+# Simply extract the 4 lines of hex data following the header.
+echo "Free TSA Hash Verification:"
+echo ""
+TSR_HASH=$(openssl ts -reply -in "$TSR_FILE" -text | grep -A 4 "Message data:")
+
+# Calculate the hash of the .sig file (which was the input to the TSR)
+SIG_HASH=$(sha512sum "$SIG_FILE" | awk '{print $1}')
+
+echo "$SIG_FILE Hash: $SIG_HASH"
+echo ""
+echo "$TSR_FILE $TSR_HASH"
+echo ""
+
+# 4. Decryption & Integrity Test
+# Creates a temporary directory to verify the symmetric layer and archive integrity.
+TEST_DIR="test_restore_${BASE_NAME}"
+mkdir -p "$TEST_DIR"
+gpg --decrypt "$OUTPUT_FILE" | tar -I "zstd -d" -C "$TEST_DIR" -xf -
+
+echo ""
+echo "Decryption test successful. Archive extracted to: $TEST_DIR"
+
+echo ""
+echo "--- FINAL STEPS: MANUAL WITNESSING ---"
+echo "To complete the Authentication Stack, perform the following:"
+echo ""
+echo "1. [4/6] LAYER: TIME (Immutable - OpenTimestamps):"
+echo "   URL: https://opentimestamps.org/#info"
+echo ""
+echo "2. [5/6] LAYER: PROVENANCE (Git):"
+echo "   git add $HASH_FILE $SIG_FILE $TSR_FILE $OTS_FILE"
+echo "   git commit -S -m \"feat: notarize $BASE_NAME with 6-layer stack\""
+echo "   git push"
+echo ""
+echo "3. [6/6] LAYER: PERMANENCE (Wayback Machine):"
+echo "   Submit your GitHub repository URL to: https://web.archive.org/save"
+echo ""
