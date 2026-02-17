@@ -23,7 +23,7 @@ Note: The -T6 flag in the tar command is optimized for a 6-core processor (Intel
 ### Stack Execution Order
 Layer 1: Integrity: Archive and Symmetric Encryption.
 
-Layer 2: Identity: SHA-512 Hashing and PGP Detached Signing (Identity Witness).
+Layer 2: Identity: SHA-512 Hashing and PGP Cleartext Signing (Identity Witness).
 
 Layer 3: Authority: RFC 3161 Timestamp via FreeTSA (Temporal Witness).
 
