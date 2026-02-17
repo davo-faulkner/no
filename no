@@ -59,14 +59,14 @@ echo "Generated: $SIG_FILE"
 
 echo ""
 echo "--- [3/6] LAYER: TIME (Fast - RFC 3161 TSR) ---"
-# Request timestamp from FreeTSA using SHA-512.
+# Request timestamp from freeTSA using SHA-512.
 openssl ts -query -data "$SIG_FILE" -sha512 -cert | \
 curl -s -H "Content-Type: application/timestamp-query" --data-binary @- https://freetsa.org/tsr > "$TSR_FILE"
 
 if [[ -s "$TSR_FILE" ]]; then
     echo "Generated: $TSR_FILE"
 else
-    echo "Error: Failed to retrieve TSR from FreeTSA."
+    echo "Error: Failed to retrieve TSR from freeTSA."
     exit 1
 fi
 
@@ -85,14 +85,14 @@ echo ""
 # 2. Verify RFC 3161 Timestamp (Authority)
 # This checks the mathematical link between the .sig file and the FreeTSA response.
 # Note: This requires the FreeTSA root CA locally or the -CAfile flag.
-echo "Free TSA Time Stamp Verification:"
+echo "freeTSA Time Stamp Verification:"
 echo ""
 openssl ts -reply -in "$TSR_FILE" -text | grep "Time stamp:"
 echo ""
 
 # 3. Verify Hash Match in TSR
 # Simply extract the 4 lines of hex data following the header.
-echo "Free TSA Hash Verification:"
+echo "freeTSA Hash Verification:"
 echo ""
 TSR_HASH=$(openssl ts -reply -in "$TSR_FILE" -text | grep -A 4 "Message data:")
 
@@ -118,7 +118,7 @@ echo "--- FINAL STEPS: MANUAL WITNESSING ---"
 echo "To complete the Authentication Stack, perform the following:"
 echo ""
 echo "1. [4/6] LAYER: TIME (Immutable - OpenTimestamps):"
-echo "   URL: https://opentimestamps.org/#info"
+echo "   Submit $SIG_FILE to https://opentimestamps.org/#info"
 echo ""
 echo "2. [5/6] LAYER: PROVENANCE (Git):"
 echo "   git add $HASH_FILE $SIG_FILE $TSR_FILE $OTS_FILE"

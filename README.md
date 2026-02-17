@@ -25,7 +25,7 @@ Layer 1: Integrity: Archive, Symmetric Encryption, and SHA-512 Hashing.
 
 Layer 2: Identity: PGP Cleartext Signing (Identity Witness).
 
-Layer 3: Timestamp (Fast): RFC 3161 Timestamp via FreeTSA (Temporal Witness).
+Layer 3: Timestamp (Fast): RFC 3161 Timestamp via freeTSA (Temporal Witness).
 
 Layer 4: Timestamp (Immutable): OpenTimestamps (Bitcoin Blockchain Anchor).
 
