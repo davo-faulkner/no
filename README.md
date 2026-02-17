@@ -21,13 +21,13 @@ Since the script is in the system `$PATH`, it can be invoked from any directory:
 Note: The -T6 flag in the tar command is optimized for a 6-core processor (Intel i9). If your system has a different number of CPU cores, you must update this value in the script to match your hardware to avoid process bottlenecks or execution errors.
 
 ### Stack Execution Order
-Layer 1: Integrity: Archive and Symmetric Encryption.
+Layer 1: Integrity: Archive, Symmetric Encryption, and SHA-512 Hashing.
 
-Layer 2: Identity: SHA-512 Hashing and PGP Cleartext Signing (Identity Witness).
+Layer 2: Identity: PGP Cleartext Signing (Identity Witness).
 
-Layer 3: Authority: RFC 3161 Timestamp via FreeTSA (Temporal Witness).
+Layer 3: Timestamp (Fast): RFC 3161 Timestamp via FreeTSA (Temporal Witness).
 
-Layer 4: Availability: OpenTimestamps (Bitcoin Blockchain Anchor).
+Layer 4: Timestamp (Immutable): OpenTimestamps (Bitcoin Blockchain Anchor).
 
 Layer 5: Provenance: Git staging with signed commits.
 
